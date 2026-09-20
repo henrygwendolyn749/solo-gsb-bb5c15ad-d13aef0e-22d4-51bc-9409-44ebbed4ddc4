@@ -1,0 +1,11 @@
+services:
+  dc-checker:
+    build: .
+    image: dc-network-checker:latest
+    container_name: dc-network-checker
+    ports:
+      - "8000:8000"
+    environment:
+      # 仅需一个变量：容器监听端口（与右侧端口映射保持一致）
+      PORT: "8000"
+    restart: unless-stopped

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>直流网络校核器</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>⚡ 直流网络校核器</h1>
+  <p class="subtitle">改进节点法（MNA）· FastAPI + NumPy 求解 · 最多 30 个节点</p>
+</header>
+
+<main class="container">
+
+  <!-- ============ 输入区 ============ -->
+  <section class="card" id="input-card">
+    <h2>1. 网络参数</h2>
+    <div class="form-row">
+      <label>节点数量
+        <input type="number" id="node-count" min="1" max="30" value="4">
+      </label>
+      <label>接地节点
+        <select id="ground-select"></select>
+      </label>
+      <div class="hint">节点编号为 1～N，接地节点电压固定为 0&nbsp;V。</div>
+    </div>
+
+    <h2>2. 元件表</h2>
+    <div class="legend">
+      <span><b>R</b> 电阻 (Ω, &gt;0)</span>
+      <span><b>I</b> 独立电流源 (A)：电流由 a 流向 b</span>
+      <span><b>V</b> 独立电压源 (V)：a 端为正极</span>
+    </div>
+    <div class="table-wrap">
+      <table id="comp-table">
+        <thead>
+          <tr>
+            <th>编号</th><th>类型</th><th>端点 a</th><th>端点 b</th>
+            <th>数值</th><th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="comp-tbody"></tbody>
+      </table>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="add-r">＋ 电阻</button>
+      <button class="btn" id="add-i">＋ 电流源</button>
+      <button class="btn" id="add-v">＋ 电压源</button>
+      <span class="spacer"></span>
+      <div class="dropdown">
+        <button class="btn btn-secondary" id="example-btn">📋 载入示例 ▾</button>
+        <div class="dropdown-menu" id="example-menu">
+          <button data-example="normal">示例 1：正常电路（双电源电桥）</button>
+          <button data-example="noground">示例 2：未接地（应报错）</button>
+          <button data-example="floating">示例 3：浮置子网（应报错）</button>
+          <button data-example="conflict">示例 4：电压源矛盾（应报错）</button>
+        </div>
+      </div>
+      <button class="btn btn-secondary" id="clear-btn">清空</button>
+      <button class="btn btn-primary" id="analyze-btn">▶ 校核网络</button>
+    </div>
+  </section>
+
+  <!-- ============ 错误/告警区 ============ -->
+  <section class="card error-card hidden" id="error-card">
+    <h2 id="error-title">⚠ 无法求解</h2>
+    <div id="error-list"></div>
+  </section>
+
+  <!-- ============ 客户端校验提示 ============ -->
+  <section class="card warn-card hidden" id="warn-card">
+    <h2>✏ 输入需要修正</h2>
+    <ul id="warn-list"></ul>
+  </section>
+
+  <!-- ============ 结果区 ============ -->
+  <section class="card result-card hidden" id="result-card">
+    <h2>3. 节点电压</h2>
+    <div class="table-wrap">
+      <table id="voltage-table">
+        <thead><tr><th>节点</th><th>电压 (V)</th><th>备注</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <h2>4. 支路方向电流与功率</h2>
+    <div class="table-wrap">
+      <table id="branch-table">
+        <thead>
+          <tr>
+            <th>编号</th><th>类型</th><th>端点</th>
+            <th>电流 (A) 与方向</th><th>压降 (V)</th><th>吸收功率 (W)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="hint">电流方向：<span class="arrow">→</span> 表示实际方向为 a→b；
+      吸收功率为负表示该元件向网络<b>发出</b>功率。</p>
+
+    <h2>5. 全网功率平衡</h2>
+    <div id="power-grid" class="power-grid"></div>
+    <div class="balance-badge" id="balance-badge"></div>
+  </section>
+
+</main>
+
+<footer class="footer">直流网络校核器 · 容器部署 · <code>docker compose up --build</code></footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
